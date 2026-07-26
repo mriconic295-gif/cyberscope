@@ -1,0 +1,984 @@
+/*==========================================================
+ CyberScope v2.0
+ AI Based WAPT & OSINT Analyzer
+ Professional Dark Theme
+==========================================================*/
+
+*{
+    outline:none;
+    border:none;
+    font-family:"Segoe UI";
+    color:#ffffff;
+    font-size:10pt;
+}
+
+/*==========================================================
+MAIN WINDOW
+==========================================================*/
+
+QMainWindow{
+
+    background:#0D1117;
+
+}
+
+QWidget{
+
+    background:#0D1117;
+    color:white;
+
+}
+
+/*==========================================================
+SIDEBAR
+==========================================================*/
+
+#sidebar{
+
+    background:#10151C;
+
+    border-right:1px solid #222831;
+
+}
+
+#sidebar QPushButton{
+
+    background:transparent;
+
+    color:#C9D1D9;
+
+    text-align:left;
+
+    padding-left:20px;
+
+    height:46px;
+
+    font-size:11pt;
+
+    border-radius:8px;
+
+    margin-left:10px;
+
+    margin-right:10px;
+
+}
+
+#sidebar QPushButton:hover{
+
+    background:#1C232D;
+
+    color:#00FF88;
+
+}
+
+#sidebar QPushButton:checked{
+
+    background:#00FF88;
+
+    color:black;
+
+    font-weight:bold;
+
+}
+
+/*==========================================================
+TOP BAR
+==========================================================*/
+
+#topBar{
+
+    background:#161B22;
+
+    border-bottom:1px solid #30363D;
+
+}
+
+#titleLabel{
+
+    color:#00FF88;
+
+    font-size:24px;
+
+    font-weight:bold;
+
+}
+
+#subTitle{
+
+    color:#8B949E;
+
+    font-size:10pt;
+
+}
+
+/*==========================================================
+SEARCH BAR
+==========================================================*/
+
+QLineEdit{
+
+    background:#161B22;
+
+    border:2px solid #30363D;
+
+    border-radius:10px;
+
+    padding-left:14px;
+
+    height:42px;
+
+    font-size:11pt;
+
+}
+
+QLineEdit:hover{
+
+    border:2px solid #00FF88;
+
+}
+
+QLineEdit:focus{
+
+    border:2px solid #00FF88;
+
+}
+
+/*==========================================================
+ANALYZE BUTTON
+==========================================================*/
+
+QPushButton{
+
+    background:#00FF88;
+
+    color:black;
+
+    border-radius:10px;
+
+    font-weight:bold;
+
+    padding:12px 18px;
+
+}
+
+QPushButton:hover{
+
+    background:#00D870;
+
+}
+
+QPushButton:pressed{
+
+    background:#00B55D;
+
+}
+
+/*==========================================================
+IMPORT BUTTON
+==========================================================*/
+
+#importButton{
+
+    background:#2B3137;
+
+    color:white;
+
+}
+
+#importButton:hover{
+
+    background:#40464D;
+
+}
+
+/*==========================================================
+EXPORT BUTTON
+==========================================================*/
+
+#exportButton{
+
+    background:#3498DB;
+
+    color:white;
+
+}
+
+#exportButton:hover{
+
+    background:#2D82BC;
+
+}
+
+/*==========================================================
+STATUS BAR
+==========================================================*/
+
+QStatusBar{
+
+    background:#161B22;
+
+    border-top:1px solid #30363D;
+
+}
+
+/*==========================================================
+GROUP BOX
+==========================================================*/
+
+QGroupBox{
+
+    background:#161B22;
+
+    border:1px solid #30363D;
+
+    border-radius:12px;
+
+    margin-top:10px;
+
+    font-weight:bold;
+
+}
+
+QGroupBox::title{
+
+    subcontrol-origin:margin;
+
+    left:15px;
+
+    padding:5px;
+
+    color:#00FF88;
+
+}
+/*==========================================================
+INFO CARDS
+==========================================================*/
+
+#infoCard{
+
+    background:#161B22;
+
+    border:1px solid #30363D;
+
+    border-radius:12px;
+
+}
+
+#infoCard:hover{
+
+    border:1px solid #00FF88;
+
+    background:#1C232D;
+
+}
+
+#cardTitle{
+
+    color:#8B949E;
+
+    font-size:10pt;
+
+    font-weight:600;
+
+}
+
+#cardValue{
+
+    color:#FFFFFF;
+
+    font-size:18pt;
+
+    font-weight:bold;
+
+}
+
+#cardIcon{
+
+    background:transparent;
+
+}
+
+/*==========================================================
+DASHBOARD FRAME
+==========================================================*/
+
+#dashboardFrame{
+
+    background:#0D1117;
+
+}
+
+/*==========================================================
+TABLE
+==========================================================*/
+
+QTableWidget{
+
+    background:#161B22;
+
+    border:1px solid #30363D;
+
+    border-radius:10px;
+
+    gridline-color:#2B3137;
+
+    selection-background-color:#00FF88;
+
+    selection-color:black;
+
+    alternate-background-color:#1B2129;
+
+}
+
+QTableWidget::item{
+
+    padding:8px;
+
+}
+
+QHeaderView::section{
+
+    background:#21262D;
+
+    color:white;
+
+    padding:8px;
+
+    font-weight:bold;
+
+    border:none;
+
+}
+
+/*==========================================================
+TREE WIDGET
+==========================================================*/
+
+QTreeWidget{
+
+    background:#161B22;
+
+    border:1px solid #30363D;
+
+    border-radius:10px;
+
+}
+
+QTreeWidget::item{
+
+    height:28px;
+
+}
+
+QTreeWidget::item:selected{
+
+    background:#00FF88;
+
+    color:black;
+
+}
+
+/*==========================================================
+TEXT BROWSER
+==========================================================*/
+
+QTextBrowser{
+
+    background:#161B22;
+
+    border:1px solid #30363D;
+
+    border-radius:10px;
+
+    padding:10px;
+
+    color:white;
+
+}
+
+/*==========================================================
+TEXT EDIT
+==========================================================*/
+
+QTextEdit{
+
+    background:#161B22;
+
+    border:1px solid #30363D;
+
+    border-radius:10px;
+
+    color:white;
+
+    padding:10px;
+
+}
+
+/*==========================================================
+LIST WIDGET
+==========================================================*/
+
+QListWidget{
+
+    background:#161B22;
+
+    border:1px solid #30363D;
+
+    border-radius:10px;
+
+}
+
+QListWidget::item{
+
+    height:30px;
+
+}
+
+QListWidget::item:selected{
+
+    background:#00FF88;
+
+    color:black;
+
+}
+
+/*==========================================================
+TAB WIDGET
+==========================================================*/
+
+QTabWidget::pane{
+
+    border:1px solid #30363D;
+
+    background:#161B22;
+
+    border-radius:10px;
+
+}
+
+QTabBar::tab{
+
+    background:#21262D;
+
+    color:white;
+
+    padding:12px 22px;
+
+    border-top-left-radius:8px;
+
+    border-top-right-radius:8px;
+
+    margin-right:2px;
+
+}
+
+QTabBar::tab:selected{
+
+    background:#00FF88;
+
+    color:black;
+
+}
+
+QTabBar::tab:hover{
+
+    background:#2C3440;
+
+}
+
+/*==========================================================
+PROGRESS BAR
+==========================================================*/
+
+QProgressBar{
+
+    background:#21262D;
+
+    border:1px solid #30363D;
+
+    border-radius:8px;
+
+    text-align:center;
+
+    color:white;
+
+}
+
+QProgressBar::chunk{
+
+    background:#00FF88;
+
+    border-radius:8px;
+
+}
+
+/*==========================================================
+COMBO BOX
+==========================================================*/
+
+QComboBox{
+
+    background:#161B22;
+
+    border:2px solid #30363D;
+
+    border-radius:8px;
+
+    padding-left:10px;
+
+    min-height:35px;
+
+}
+
+QComboBox:hover{
+
+    border:2px solid #00FF88;
+
+}
+
+QComboBox::drop-down{
+
+    width:25px;
+
+}
+
+/*==========================================================
+CHECK BOX
+==========================================================*/
+
+QCheckBox{
+
+    color:white;
+
+    spacing:10px;
+
+}
+
+QCheckBox::indicator{
+
+    width:18px;
+
+    height:18px;
+
+}
+
+QCheckBox::indicator:checked{
+
+    background:#00FF88;
+
+    border:1px solid #00FF88;
+
+}
+
+/*==========================================================
+RADIO BUTTON
+==========================================================*/
+
+QRadioButton{
+
+    color:white;
+
+}
+/*==========================================================
+SCROLL BAR
+==========================================================*/
+
+QScrollBar:vertical{
+
+    background:#161B22;
+
+    width:12px;
+
+    border:none;
+
+    margin:0px;
+
+}
+
+QScrollBar::handle:vertical{
+
+    background:#00FF88;
+
+    border-radius:6px;
+
+    min-height:30px;
+
+}
+
+QScrollBar::handle:vertical:hover{
+
+    background:#00D870;
+
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical{
+
+    height:0px;
+
+    border:none;
+
+    background:none;
+
+}
+
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical{
+
+    background:none;
+
+}
+
+/* Horizontal */
+
+QScrollBar:horizontal{
+
+    background:#161B22;
+
+    height:12px;
+
+    border:none;
+
+}
+
+QScrollBar::handle:horizontal{
+
+    background:#00FF88;
+
+    border-radius:6px;
+
+    min-width:30px;
+
+}
+
+QScrollBar::handle:horizontal:hover{
+
+    background:#00D870;
+
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal{
+
+    width:0px;
+
+    background:none;
+
+}
+
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal{
+
+    background:none;
+
+}
+
+/*==========================================================
+MENU BAR
+==========================================================*/
+
+QMenuBar{
+
+    background:#161B22;
+
+    color:white;
+
+}
+
+QMenuBar::item{
+
+    spacing:6px;
+
+    padding:8px 15px;
+
+}
+
+QMenuBar::item:selected{
+
+    background:#00FF88;
+
+    color:black;
+
+}
+
+/*==========================================================
+MENU
+==========================================================*/
+
+QMenu{
+
+    background:#161B22;
+
+    border:1px solid #30363D;
+
+}
+
+QMenu::item{
+
+    padding:8px 30px;
+
+}
+
+QMenu::item:selected{
+
+    background:#00FF88;
+
+    color:black;
+
+}
+
+/*==========================================================
+TOOL BAR
+==========================================================*/
+
+QToolBar{
+
+    background:#161B22;
+
+    border:none;
+
+    spacing:8px;
+
+}
+
+/*==========================================================
+TOOL BUTTON
+==========================================================*/
+
+QToolButton{
+
+    background:transparent;
+
+    color:white;
+
+    border-radius:8px;
+
+    padding:8px;
+
+}
+
+QToolButton:hover{
+
+    background:#1F2630;
+
+}
+
+/*==========================================================
+TOOL TIP
+==========================================================*/
+
+QToolTip{
+
+    background:#20262F;
+
+    color:white;
+
+    border:1px solid #00FF88;
+
+    padding:6px;
+
+}
+
+/*==========================================================
+SPLITTER
+==========================================================*/
+
+QSplitter::handle{
+
+    background:#30363D;
+
+}
+
+QSplitter::handle:hover{
+
+    background:#00FF88;
+
+}
+
+/*==========================================================
+FRAME
+==========================================================*/
+
+QFrame{
+
+    border-radius:10px;
+
+}
+
+/*==========================================================
+SPIN BOX
+==========================================================*/
+
+QSpinBox{
+
+    background:#161B22;
+
+    border:2px solid #30363D;
+
+    border-radius:8px;
+
+    padding-left:8px;
+
+}
+
+QSpinBox:hover{
+
+    border:2px solid #00FF88;
+
+}
+
+/*==========================================================
+DOUBLE SPIN
+==========================================================*/
+
+QDoubleSpinBox{
+
+    background:#161B22;
+
+    border:2px solid #30363D;
+
+    border-radius:8px;
+
+}
+
+/*==========================================================
+DATE EDIT
+==========================================================*/
+
+QDateEdit{
+
+    background:#161B22;
+
+    border:2px solid #30363D;
+
+    border-radius:8px;
+
+}
+
+/*==========================================================
+CALENDAR
+==========================================================*/
+
+QCalendarWidget QWidget{
+
+    background:#161B22;
+
+    color:white;
+
+}
+
+/*==========================================================
+TERMINAL PANEL
+==========================================================*/
+
+#terminal{
+
+    background:#050608;
+
+    color:#00FF88;
+
+    font-family:"Consolas";
+
+    font-size:11pt;
+
+    border:1px solid #30363D;
+
+    border-radius:10px;
+
+}
+
+/*==========================================================
+STATUS LABELS
+==========================================================*/
+
+#success{
+
+    color:#2ECC71;
+
+}
+
+#warning{
+
+    color:#F1C40F;
+
+}
+
+#error{
+
+    color:#E74C3C;
+
+}
+
+#info{
+
+    color:#3498DB;
+
+}
+
+/*==========================================================
+SHADOW PLACEHOLDER
+==========================================================*/
+
+#shadow{
+
+    background:#161B22;
+
+}
+
+/*==========================================================
+LOADING LABEL
+==========================================================*/
+
+#loadingLabel{
+
+    color:#00FF88;
+
+    font-size:14pt;
+
+    font-weight:bold;
+
+}
+
+/*==========================================================
+SECTION TITLE
+==========================================================*/
+
+#sectionTitle{
+
+    color:white;
+
+    font-size:15pt;
+
+    font-weight:bold;
+
+}
+
+/*==========================================================
+VALUE LABEL
+==========================================================*/
+
+#valueLabel{
+
+    color:#00FF88;
+
+    font-size:16pt;
+
+    font-weight:bold;
+
+}
+
+/*==========================================================
+FOOTER
+==========================================================*/
+
+#footer{
+
+    color:#8B949E;
+
+    font-size:9pt;
+
+}
+
+/*==========================================================
+END OF CYBERSCOPE THEME
+==========================================================*/
