@@ -147,3 +147,176 @@ class Sidebar(QWidget):
         self.buttons[page].setChecked(True)
 
         self.pageChanged.emit(page)
+        """
+=========================================================
+Sidebar Animation & Controls
+=========================================================
+"""
+
+from PySide6.QtCore import (
+    QPropertyAnimation,
+    QEasingCurve
+)
+
+# ==================================================
+# Collapse Sidebar
+# ==================================================
+
+    def collapse(self):
+
+        self.animation = QPropertyAnimation(
+            self,
+            b"minimumWidth"
+        )
+
+        self.animation.setDuration(250)
+
+        self.animation.setStartValue(250)
+
+        self.animation.setEndValue(70)
+
+        self.animation.setEasingCurve(
+            QEasingCurve.OutCubic
+        )
+
+        self.animation.start()
+
+        self.setMaximumWidth(70)
+
+        for button in self.buttons.values():
+
+            button.setText("")
+
+            button.setToolTip(
+                button.objectName()
+            )
+
+    # ==================================================
+    # Expand Sidebar
+    # ==================================================
+
+    def expand(self):
+
+        self.animation = QPropertyAnimation(
+            self,
+            b"minimumWidth"
+        )
+
+        self.animation.setDuration(250)
+
+        self.animation.setStartValue(70)
+
+        self.animation.setEndValue(250)
+
+        self.animation.setEasingCurve(
+            QEasingCurve.OutCubic
+        )
+
+        self.animation.start()
+
+        self.setMaximumWidth(250)
+
+        titles = {
+
+            "dashboard":"Dashboard",
+            "overview":"Overview",
+            "dns":"DNS Lookup",
+            "whois":"WHOIS",
+            "ip":"IP Lookup",
+            "geoip":"GeoIP",
+            "asn":"ASN Lookup",
+            "reverse_dns":"Reverse DNS",
+            "ssl":"SSL Certificate",
+            "headers":"HTTP Headers",
+            "security":"Security Headers",
+            "technology":"Technologies",
+            "cdn":"CDN Detector",
+            "waf":"WAF Detector",
+            "performance":"Performance",
+            "screenshot":"Screenshot",
+            "reports":"Reports",
+            "settings":"Settings"
+
+        }
+
+        for key, button in self.buttons.items():
+
+            button.setText(
+                titles[key]
+            )
+
+    # ==================================================
+    # Toggle Sidebar
+    # ==================================================
+
+    def toggle(self):
+
+        if self.minimumWidth() > 100:
+
+            self.collapse()
+
+        else:
+
+            self.expand()
+
+    # ==================================================
+    # Select Page
+    # ==================================================
+
+    def set_active(self, page):
+
+        if page not in self.buttons:
+
+            return
+
+        for btn in self.buttons.values():
+
+            btn.setChecked(False)
+
+        self.buttons[page].setChecked(True)
+
+    # ==================================================
+    # Enable / Disable
+    # ==================================================
+
+    def enable_all(self):
+
+        for button in self.buttons.values():
+
+            button.setEnabled(True)
+
+    def disable_all(self):
+
+        for button in self.buttons.values():
+
+            button.setEnabled(False)
+
+    # ==================================================
+    # Current Page
+    # ==================================================
+
+    def current_page(self):
+
+        for key, button in self.buttons.items():
+
+            if button.isChecked():
+
+                return key
+
+        return "dashboard"
+
+    # ==================================================
+    # Reset
+    # ==================================================
+
+    def reset(self):
+
+        self.set_active("dashboard")
+
+    # ==================================================
+    # Update Footer
+    # ==================================================
+
+    def set_status(self, text):
+
+        self.footer.setText(text)
