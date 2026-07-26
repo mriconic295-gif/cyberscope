@@ -151,3 +151,38 @@ class TitleBar(QWidget):
             )
 
             self.dragPos = event.globalPosition().toPoint()
+                # ==================================================
+    # Double Click = Maximize / Restore
+    # ==================================================
+
+    def mouseDoubleClickEvent(self, event):
+
+        if event.button() == Qt.LeftButton:
+
+            self.maximizeRequested.emit()
+
+    # ==================================================
+    # Update Title
+    # ==================================================
+
+    def set_title(self, text):
+
+        self.title.setText(text)
+
+    # ==================================================
+    # Set Icon
+    # ==================================================
+
+    def set_icon(self, icon_path):
+
+        try:
+
+            icon = QIcon(str(icon_path))
+
+            self.icon.setPixmap(
+                icon.pixmap(22, 22)
+            )
+
+        except Exception:
+
+            pass
