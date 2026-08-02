@@ -18,9 +18,9 @@ import signal
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import (
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import (
     QApplication,
     QMessageBox,
 )
