@@ -6,9 +6,9 @@ Author : Krunal Paliwal
 =========================================================
 """
 
-from PySide6.QtCore import Qt, QPoint, Signal
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import (
+from PyQt5.QtCore import Qt, QPoint, Signal
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import (
     QWidget,
     QLabel,
     QPushButton,
