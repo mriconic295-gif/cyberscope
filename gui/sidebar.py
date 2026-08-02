@@ -6,9 +6,9 @@ Author : Krunal Paliwal
 =========================================================
 """
 
-from PySide6.QtCore import Qt, Signal
+from PyQt5.QtCore import Qt, Signal
 
-from PySide6.QtWidgets import (
+from PyQt5.QtWidgets import (
     QWidget,
     QPushButton,
     QVBoxLayout,
@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
     QSizePolicy
 )
 
-from PySide6.QtGui import (
+from PyQt5.QtGui import (
     QIcon
 )
 
