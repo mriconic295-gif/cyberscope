@@ -8,7 +8,7 @@ Version : 2.0
 
 from __future__ import annotations
 
-from PySide6.QtCore import (
+from PyQt5.QtCore import (
     Qt,
     QSize,
     QRectF,
