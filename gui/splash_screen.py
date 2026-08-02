@@ -8,20 +8,20 @@ Author : Krunal Paliwal
 
 from pathlib import Path
 
-from PySide6.QtCore import (
+from PyQt5.QtCore import (
     Qt,
     QTimer,
     QPropertyAnimation,
     QEasingCurve
 )
 
-from PySide6.QtGui import (
+from PyQt5.QtGui import (
     QColor,
     QFont,
     QPixmap
 )
 
-from PySide6.QtWidgets import (
+from PyQt5.QtWidgets import (
     QWidget,
     QLabel,
     QVBoxLayout,
