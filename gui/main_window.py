@@ -10,18 +10,18 @@ Author : Krunal Paliwal
 import sys
 from pathlib import Path
 
-from PySide6.QtCore import (
+from PyQt5.QtCore import (
     Qt,
     QSize,
     Signal
 )
 
-from PySide6.QtGui import (
+from PyQt5.QtGui import (
     QAction,
     QIcon
 )
 
-from PySide6.QtWidgets import (
+from PyQt5.QtWidgets import (
 
     QMainWindow,
     QWidget,
