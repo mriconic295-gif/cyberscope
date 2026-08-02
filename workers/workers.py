@@ -9,10 +9,10 @@ from __future__ import annotations
 
 import traceback
 
-from PySide6.QtCore import QObject
-from PySide6.QtCore import QRunnable
-from PySide6.QtCore import Signal
-from PySide6.QtCore import Slot
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QRunnable
+from PyQt5.QtCore import Signal
+from PyQt5.QtCore import Slot
 
 from modules.scanner import ScannerEngine
 
