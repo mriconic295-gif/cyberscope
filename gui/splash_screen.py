@@ -2,6 +2,7 @@
 =========================================================
 CyberScope
 Professional Splash Screen
+
 Author : Krunal Paliwal
 =========================================================
 """
@@ -18,7 +19,8 @@ from PyQt5.QtCore import (
 from PyQt5.QtGui import (
     QColor,
     QFont,
-    QPixmap
+    QPixmap,
+    QMovie
 )
 
 from PyQt5.QtWidgets import (
@@ -48,13 +50,12 @@ class SplashScreen(QWidget):
         super().__init__()
 
         self.setWindowFlags(
-
             Qt.FramelessWindowHint |
             Qt.WindowStaysOnTopHint
-
         )
 
-        self.setFixedSize(900,520)
+        # Adjusted for low-resolution displays & specs
+        self.setFixedSize(700, 420)
 
         self.setObjectName("SplashScreen")
 
@@ -70,9 +71,9 @@ class SplashScreen(QWidget):
 
         self.mainLayout = QVBoxLayout(self)
 
-        self.mainLayout.setContentsMargins(40,40,40,30)
+        self.mainLayout.setContentsMargins(30, 30, 30, 20)
 
-        self.mainLayout.setSpacing(15)
+        self.mainLayout.setSpacing(10)
 
         self.mainLayout.setAlignment(Qt.AlignCenter)
 
@@ -87,14 +88,12 @@ class SplashScreen(QWidget):
             pix = QPixmap(str(SPLASH))
 
             self.logo.setPixmap(
-
                 pix.scaled(
-                    160,
-                    160,
+                    120,
+                    120,
                     Qt.KeepAspectRatio,
                     Qt.SmoothTransformation
                 )
-
             )
 
         self.logo.setAlignment(Qt.AlignCenter)
@@ -108,19 +107,15 @@ class SplashScreen(QWidget):
         self.title.setAlignment(Qt.AlignCenter)
 
         self.title.setFont(
-
             QFont(
                 "Segoe UI",
-                28,
+                22,
                 QFont.Bold
             )
-
         )
 
         self.title.setStyleSheet("""
-
-            color:#00FF88;
-
+            color: #00FF88;
         """)
 
         # ---------------------------------------
@@ -128,22 +123,18 @@ class SplashScreen(QWidget):
         # ---------------------------------------
 
         self.subtitle = QLabel(
-
             "AI BASED WAPT & OSINT ANALYZER"
-
         )
 
         self.subtitle.setAlignment(Qt.AlignCenter)
 
         self.subtitle.setStyleSheet("""
-
-            color:#A8B3BF;
-            font-size:13px;
-
+            color: #A8B3BF;
+            font-size: 12px;
         """)
 
         # ---------------------------------------
-        # Loading GIF
+        # Loading GIF / Animation
         # ---------------------------------------
 
         self.loadingLabel = QLabel()
@@ -152,8 +143,6 @@ class SplashScreen(QWidget):
 
         if Path(LOADING).exists():
 
-            from PySide6.QtGui import QMovie
-
             movie = QMovie(str(LOADING))
 
             self.loadingLabel.setMovie(movie)
@@ -161,7 +150,7 @@ class SplashScreen(QWidget):
             movie.start()
 
         # ---------------------------------------
-        # Progress
+        # Progress Bar
         # ---------------------------------------
 
         self.progress = QProgressBar()
@@ -174,25 +163,21 @@ class SplashScreen(QWidget):
 
         self.progress.setTextVisible(False)
 
-        self.progress.setFixedHeight(10)
+        self.progress.setFixedHeight(6)
 
         # ---------------------------------------
         # Status
         # ---------------------------------------
 
         self.status = QLabel(
-
             "Initializing CyberScope..."
-
         )
 
         self.status.setAlignment(Qt.AlignCenter)
 
         self.status.setStyleSheet("""
-
-            color:white;
-            font-size:11px;
-
+            color: white;
+            font-size: 11px;
         """)
 
         # ---------------------------------------
@@ -206,19 +191,15 @@ class SplashScreen(QWidget):
         self.author = QLabel(SPLASH_AUTHOR)
 
         self.author.setFont(
-
             QFont(
                 "Segoe UI",
-                10,
+                9,
                 QFont.Bold
             )
-
         )
 
         self.author.setStyleSheet("""
-
-            color:#00FF88;
-
+            color: #00FF88;
         """)
 
         footerLayout.addWidget(self.author)
@@ -235,11 +216,11 @@ class SplashScreen(QWidget):
 
         self.mainLayout.addWidget(self.subtitle)
 
-        self.mainLayout.addSpacing(20)
+        self.mainLayout.addSpacing(10)
 
         self.mainLayout.addWidget(self.loadingLabel)
 
-        self.mainLayout.addSpacing(20)
+        self.mainLayout.addSpacing(10)
 
         self.mainLayout.addWidget(self.progress)
 
@@ -258,23 +239,18 @@ class SplashScreen(QWidget):
         self.setGraphicsEffect(effect)
 
         self.animation = QPropertyAnimation(
-
             effect,
-
             b"opacity"
-
         )
 
-        self.animation.setDuration(1200)
+        self.animation.setDuration(600)  # Faster transition for low spec
 
         self.animation.setStartValue(0)
 
         self.animation.setEndValue(1)
 
         self.animation.setEasingCurve(
-
-            QEasingCurve.OutCubic
-
+            QEasingCurve.OutQuad
         )
 
         self.animation.start()
@@ -288,14 +264,11 @@ class SplashScreen(QWidget):
         self.timer = QTimer()
 
         self.timer.timeout.connect(
-
             self.update_progress
-
         )
 
-        self.timer.start(45)
-          # =====================================================
-    # Update Progress
+        self.timer.start(30)
+
     # =====================================================
 
     def update_progress(self):
@@ -305,87 +278,47 @@ class SplashScreen(QWidget):
         self.progress.setValue(self.value)
 
         if self.value < 10:
-
-            self.status.setText(
-                "Loading CyberScope Core..."
-            )
+            self.status.setText("Loading CyberScope Core...")
 
         elif self.value < 20:
-
-            self.status.setText(
-                "Initializing GUI Engine..."
-            )
+            self.status.setText("Initializing GUI Engine...")
 
         elif self.value < 30:
-
-            self.status.setText(
-                "Loading Theme Manager..."
-            )
+            self.status.setText("Loading Theme Manager...")
 
         elif self.value < 40:
-
-            self.status.setText(
-                "Preparing Dashboard..."
-            )
+            self.status.setText("Preparing Dashboard...")
 
         elif self.value < 50:
-
-            self.status.setText(
-                "Loading Recon Modules..."
-            )
+            self.status.setText("Loading Recon Modules...")
 
         elif self.value < 60:
-
-            self.status.setText(
-                "Initializing DNS Analyzer..."
-            )
+            self.status.setText("Initializing DNS Analyzer...")
 
         elif self.value < 70:
-
-            self.status.setText(
-                "Loading Security Engine..."
-            )
+            self.status.setText("Loading Security Engine...")
 
         elif self.value < 80:
-
-            self.status.setText(
-                "Preparing AI Engine..."
-            )
+            self.status.setText("Preparing AI Engine...")
 
         elif self.value < 90:
-
-            self.status.setText(
-                "Building Workspace..."
-            )
+            self.status.setText("Building Workspace...")
 
         elif self.value < 100:
-
-            self.status.setText(
-                "Finalizing..."
-            )
+            self.status.setText("Finalizing...")
 
         else:
-
             self.timer.stop()
-
             self.finish_loading()
 
-    # =====================================================
-    # Finish Loading
     # =====================================================
 
     def finish_loading(self):
 
-        self.status.setText(
-
-            "CyberScope Ready"
-
-        )
+        self.status.setText("CyberScope Ready")
 
         self.fade_out()
 
-    # =====================================================
-    # Fade Out
     # =====================================================
 
     def fade_out(self):
@@ -395,62 +328,46 @@ class SplashScreen(QWidget):
         self.setGraphicsEffect(self.opacity)
 
         self.fade = QPropertyAnimation(
-
             self.opacity,
-
             b"opacity"
-
         )
 
-        self.fade.setDuration(800)
+        self.fade.setDuration(400)
 
         self.fade.setStartValue(1)
 
         self.fade.setEndValue(0)
 
         self.fade.setEasingCurve(
-
-            QEasingCurve.InOutCubic
-
+            QEasingCurve.InQuad
         )
 
         self.fade.finished.connect(
-
             self.launch_main_window
-
         )
 
         self.fade.start()
 
     # =====================================================
-    # Launch Main Window
-    # =====================================================
 
     def launch_main_window(self):
 
         try:
-
             from gui.main_window import MainWindow
 
-            self.window = MainWindow()
+            self.main_window = MainWindow()
 
-            self.window.show()
+            self.main_window.show()
 
         except Exception as error:
 
-            print(
-                "Main Window Error:",
-                error
-            )
+            print("Main Window Error:", error)
 
         self.close()
 
     # =====================================================
-    # Show Splash
-    # =====================================================
 
     @staticmethod
-
     def start():
 
         splash = SplashScreen()
