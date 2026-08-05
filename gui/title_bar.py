@@ -2,11 +2,12 @@
 =========================================================
 CyberScope
 Custom Title Bar
+
 Author : Krunal Paliwal
 =========================================================
 """
 
-from PyQt5.QtCore import Qt, QPoint, Signal
+from PyQt5.QtCore import Qt, QPoint, pyqtSignal
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QWidget,
@@ -21,11 +22,9 @@ from config.constants import APP_ICON
 
 class TitleBar(QWidget):
 
-    minimizeRequested = Signal()
-
-    maximizeRequested = Signal()
-
-    closeRequested = Signal()
+    minimizeRequested = pyqtSignal()
+    maximizeRequested = pyqtSignal()
+    closeRequested = pyqtSignal()
 
     def __init__(self, parent=None):
 
@@ -129,7 +128,7 @@ class TitleBar(QWidget):
 
         if event.button() == Qt.LeftButton:
 
-            self.dragPos = event.globalPosition().toPoint()
+            self.dragPos = event.globalPos()
 
     # ==================================================
 
@@ -141,17 +140,15 @@ class TitleBar(QWidget):
 
         if event.buttons() == Qt.LeftButton:
 
-            delta = (
-                event.globalPosition().toPoint()
-                - self.dragPos
-            )
+            delta = event.globalPos() - self.dragPos
 
             self.parentWindow.move(
                 self.parentWindow.pos() + delta
             )
 
-            self.dragPos = event.globalPosition().toPoint()
-                # ==================================================
+            self.dragPos = event.globalPos()
+
+    # ==================================================
     # Double Click = Maximize / Restore
     # ==================================================
 
