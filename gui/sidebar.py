@@ -1,322 +1,96 @@
 """
 =========================================================
-CyberScope Sidebar
-Professional Navigation Panel
+CyberScope
+Sidebar Navigation Component
+
 Author : Krunal Paliwal
 =========================================================
 """
 
-from PyQt5.QtCore import Qt, Signal
-
+from PyQt5.QtCore import Qt, pyqtSignal, QSize
 from PyQt5.QtWidgets import (
     QWidget,
-    QPushButton,
     QVBoxLayout,
+    QPushButton,
     QLabel,
+    QFrame,
     QSizePolicy
 )
-
-from PyQt5.QtGui import (
-    QIcon
-)
-
-from config.constants import ICONS
+from PyQt5.QtGui import QIcon
+from config.constants import APP_NAME, APP_ICON
 
 
-class Sidebar(QWidget):
+class SidebarButton(QPushButton):
+    def __init__(self, text, icon_path=None, parent=None):
+        super().__init__(text, parent)
+        self.setCheckable(True)
+        self.setMinimumHeight(45)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
-    pageChanged = Signal(str)
 
-    def __init__(self):
+class Sidebar(QFrame):
 
-        super().__init__()
+    pageChanged = pyqtSignal(str)
 
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.setObjectName("sidebar")
-
-        self.setMinimumWidth(250)
-
-        self.setMaximumWidth(250)
-
+        self.setFixedWidth(220)
         self.buttons = {}
-
         self.build_ui()
 
-    # ==================================================
-
     def build_ui(self):
-
         layout = QVBoxLayout(self)
-
-        layout.setContentsMargins(12,15,12,15)
-
+        layout.setContentsMargins(10, 15, 10, 15)
         layout.setSpacing(8)
 
-        # ------------------------------------------
-        # LOGO
-        # ------------------------------------------
+        # Brand Title / Logo Header
+        self.brandLabel = QLabel(APP_NAME)
+        self.brandLabel.setObjectName("sidebarBrand")
+        self.brandLabel.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.brandLabel)
 
-        self.logo = QLabel("CYBERSCOPE")
+        layout.addSpacing(15)
 
-        self.logo.setAlignment(Qt.AlignCenter)
-
-        self.logo.setObjectName("titleLabel")
-
-        layout.addWidget(self.logo)
-
-        layout.addSpacing(20)
-
-        # ------------------------------------------
-        # MENU ITEMS
-        # ------------------------------------------
-
-        menu = [
-
-            ("Dashboard","dashboard"),
-            ("Overview","overview"),
-            ("DNS Lookup","dns"),
-            ("WHOIS","whois"),
-            ("IP Lookup","ip"),
-            ("GeoIP","geoip"),
-            ("ASN Lookup","asn"),
-            ("Reverse DNS","reverse_dns"),
-            ("SSL Certificate","ssl"),
-            ("HTTP Headers","headers"),
-            ("Security Headers","security"),
-            ("Technologies","technology"),
-            ("CDN Detector","cdn"),
-            ("WAF Detector","waf"),
-            ("Performance","performance"),
-            ("Screenshot","screenshot"),
-            ("Reports","reports"),
-            ("Settings","settings")
-
+        # Navigation Buttons List
+        nav_items = [
+            ("Dashboard", "dashboard"),
+            ("Network Recon", "network"),
+            ("DNS Lookup", "dns"),
+            ("SSL Analyzer", "ssl"),
+            ("Headers Check", "headers"),
+            ("Tech Detector", "tech"),
+            ("AI Summary", "ai"),
+            ("Settings", "settings")
         ]
 
-        for text,key in menu:
+        for name, key in nav_items:
+            btn = SidebarButton(name, parent=self)
+            btn.clicked.connect(lambda checked, k=key, b=btn: self._on_button_click(k, b))
+            layout.addWidget(btn)
+            self.buttons[key] = btn
 
-            button = QPushButton(text)
-
-            button.setCursor(Qt.PointingHandCursor)
-
-            button.setCheckable(True)
-
-            button.setMinimumHeight(46)
-
-            button.clicked.connect(
-                lambda checked,
-                value=key:
-                self.change_page(value)
-            )
-
-            self.buttons[key]=button
-
-            layout.addWidget(button)
+        # Default Active Button
+        if "dashboard" in self.buttons:
+            self.buttons["dashboard"].setChecked(True)
 
         layout.addStretch()
 
-        # ------------------------------------------
-        # FOOTER
-        # ------------------------------------------
+        # Footer Info Label
+        self.footerLabel = QLabel("CyberScope v2.0")
+        self.footerLabel.setObjectName("sidebarFooter")
+        self.footerLabel.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.footerLabel)
 
-        self.footer = QLabel(
-            "CyberScope\nv2.0"
-        )
-
-        self.footer.setAlignment(Qt.AlignCenter)
-
-        self.footer.setStyleSheet("""
-
-            color:#8B949E;
-
-            font-size:10px;
-
-        """)
-
-        layout.addWidget(self.footer)
-
-        self.buttons["dashboard"].setChecked(True)
-
-    # ==================================================
-
-    def change_page(self,page):
-
+    def _on_button_click(self, page_key, clicked_btn):
+        # Uncheck other buttons for custom tab behavior
         for btn in self.buttons.values():
+            if btn != clicked_btn:
+                btn.setChecked(False)
+        clicked_btn.setChecked(True)
+        self.pageChanged.emit(page_key)
 
-            btn.setChecked(False)
-
-        self.buttons[page].setChecked(True)
-
-        self.pageChanged.emit(page)
-        """
-=========================================================
-Sidebar Animation & Controls
-=========================================================
-"""
-
-from PySide6.QtCore import (
-    QPropertyAnimation,
-    QEasingCurve
-)
-
-# ==================================================
-# Collapse Sidebar
-# ==================================================
-
-    def collapse(self):
-
-        self.animation = QPropertyAnimation(
-            self,
-            b"minimumWidth"
-        )
-
-        self.animation.setDuration(250)
-
-        self.animation.setStartValue(250)
-
-        self.animation.setEndValue(70)
-
-        self.animation.setEasingCurve(
-            QEasingCurve.OutCubic
-        )
-
-        self.animation.start()
-
-        self.setMaximumWidth(70)
-
-        for button in self.buttons.values():
-
-            button.setText("")
-
-            button.setToolTip(
-                button.objectName()
-            )
-
-    # ==================================================
-    # Expand Sidebar
-    # ==================================================
-
-    def expand(self):
-
-        self.animation = QPropertyAnimation(
-            self,
-            b"minimumWidth"
-        )
-
-        self.animation.setDuration(250)
-
-        self.animation.setStartValue(70)
-
-        self.animation.setEndValue(250)
-
-        self.animation.setEasingCurve(
-            QEasingCurve.OutCubic
-        )
-
-        self.animation.start()
-
-        self.setMaximumWidth(250)
-
-        titles = {
-
-            "dashboard":"Dashboard",
-            "overview":"Overview",
-            "dns":"DNS Lookup",
-            "whois":"WHOIS",
-            "ip":"IP Lookup",
-            "geoip":"GeoIP",
-            "asn":"ASN Lookup",
-            "reverse_dns":"Reverse DNS",
-            "ssl":"SSL Certificate",
-            "headers":"HTTP Headers",
-            "security":"Security Headers",
-            "technology":"Technologies",
-            "cdn":"CDN Detector",
-            "waf":"WAF Detector",
-            "performance":"Performance",
-            "screenshot":"Screenshot",
-            "reports":"Reports",
-            "settings":"Settings"
-
-        }
-
-        for key, button in self.buttons.items():
-
-            button.setText(
-                titles[key]
-            )
-
-    # ==================================================
-    # Toggle Sidebar
-    # ==================================================
-
-    def toggle(self):
-
-        if self.minimumWidth() > 100:
-
-            self.collapse()
-
-        else:
-
-            self.expand()
-
-    # ==================================================
-    # Select Page
-    # ==================================================
-
-    def set_active(self, page):
-
-        if page not in self.buttons:
-
-            return
-
-        for btn in self.buttons.values():
-
-            btn.setChecked(False)
-
-        self.buttons[page].setChecked(True)
-
-    # ==================================================
-    # Enable / Disable
-    # ==================================================
-
-    def enable_all(self):
-
-        for button in self.buttons.values():
-
-            button.setEnabled(True)
-
-    def disable_all(self):
-
-        for button in self.buttons.values():
-
-            button.setEnabled(False)
-
-    # ==================================================
-    # Current Page
-    # ==================================================
-
-    def current_page(self):
-
-        for key, button in self.buttons.items():
-
-            if button.isChecked():
-
-                return key
-
-        return "dashboard"
-
-    # ==================================================
-    # Reset
-    # ==================================================
-
-    def reset(self):
-
-        self.set_active("dashboard")
-
-    # ==================================================
-    # Update Footer
-    # ==================================================
-
-    def set_status(self, text):
-
-        self.footer.setText(text)
+    def set_active_page(self, page_key):
+        if page_key in self.buttons:
+            self._on_button_click(page_key, self.buttons[page_key])
