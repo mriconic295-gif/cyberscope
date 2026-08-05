@@ -13,7 +13,7 @@ from pathlib import Path
 from PyQt5.QtCore import (
     Qt,
     QSize,
-    Signal
+    pyqtSignal
 )
 
 from PyQt5.QtGui import (
