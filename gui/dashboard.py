@@ -7,9 +7,9 @@ Author : Krunal Paliwal
 =========================================================
 """
 
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import (
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import (
     QWidget,
     QLabel,
     QTextEdit,
@@ -110,7 +110,7 @@ class Dashboard(QWidget):
         shotLayout = QVBoxLayout(self.screenshotPanel)
 
         self.screenshotLabel = QLabel("Screenshot Preview")
-        self.screenshotLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.screenshotLabel.setAlignment(Qt.AlignCenter)
         self.screenshotLabel.setMinimumHeight(350)
         self.screenshotLabel.setObjectName("screenshotBox")
 
@@ -231,8 +231,8 @@ class Dashboard(QWidget):
         self.screenshotLabel.setPixmap(
             pix.scaled(
                 self.screenshotLabel.size(),
-                Qt.AspectRatioMode.KeepAspectRatio,
-                Qt.TransformationMode.SmoothTransformation
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation
             )
         )
 
