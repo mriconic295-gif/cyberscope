@@ -9,6 +9,15 @@ Author : Krunal Paliwal
 from pathlib import Path
 
 # -------------------------------------------------------
+# APPLICATION METADATA
+# -------------------------------------------------------
+
+APP_NAME = "CyberScope"
+APP_VERSION = "2.0"
+APP_AUTHOR = "Krunal Paliwal"
+APP_DESCRIPTION = "Professional Website Intelligence Platform"
+
+# -------------------------------------------------------
 # ROOT PATH
 # -------------------------------------------------------
 
@@ -31,7 +40,7 @@ LOGS_DIR = ROOT_DIR / "logs"
 WIDGETS_DIR = ROOT_DIR / "widgets"
 
 # -------------------------------------------------------
-# ASSETS
+# ASSETS & ICONS
 # -------------------------------------------------------
 
 LOGO = ASSETS_DIR / "logo.png"
@@ -40,8 +49,7 @@ SPLASH = ASSETS_DIR / "splash.png"
 LOADING = ASSETS_DIR / "loading.gif"
 
 ICONS = ASSETS_DIR / "icons"
-
-APP_ICON = ICONS / "app.ico"
+APP_ICON = LOGO if LOGO.exists() else (ICONS / "app.ico")
 
 # -------------------------------------------------------
 # DATABASE
@@ -60,7 +68,6 @@ LOG_FILE = LOGS_DIR / "cyberscope.log"
 # -------------------------------------------------------
 
 EXPORT_DIR = ROOT_DIR / "exports"
-
 SCREENSHOT_DIR = ROOT_DIR / "screenshots"
 
 # -------------------------------------------------------
@@ -68,9 +75,7 @@ SCREENSHOT_DIR = ROOT_DIR / "screenshots"
 # -------------------------------------------------------
 
 DEFAULT_TIMEOUT = 20
-
 MAX_REDIRECTS = 10
-
 VERIFY_SSL = True
 
 USER_AGENT = (
@@ -83,7 +88,6 @@ USER_AGENT = (
 # -------------------------------------------------------
 
 MAX_THREADS = 16
-
 THREAD_TIMEOUT = 120
 
 # -------------------------------------------------------
@@ -91,17 +95,12 @@ THREAD_TIMEOUT = 120
 # -------------------------------------------------------
 
 MAX_PORT = 1024
-
 MIN_PORT = 1
 
 DNS_TIMEOUT = 8
-
 WHOIS_TIMEOUT = 10
-
 HTTP_TIMEOUT = 15
-
 SSL_TIMEOUT = 15
-
 SCREENSHOT_TIMEOUT = 30
 
 # -------------------------------------------------------
@@ -109,27 +108,17 @@ SCREENSHOT_TIMEOUT = 30
 # -------------------------------------------------------
 
 PRIMARY_COLOR = "#00ff88"
-
 SECONDARY_COLOR = "#00c96b"
-
 SUCCESS_COLOR = "#32CD32"
-
 WARNING_COLOR = "#FFC107"
-
 ERROR_COLOR = "#FF3B30"
-
 INFO_COLOR = "#00BFFF"
 
 BACKGROUND_COLOR = "#0d1117"
-
 CARD_COLOR = "#161b22"
-
 SIDEBAR_COLOR = "#10151c"
-
 TEXT_COLOR = "#FFFFFF"
-
 SUBTEXT_COLOR = "#AAAAAA"
-
 BORDER_COLOR = "#30363d"
 
 # -------------------------------------------------------
@@ -137,13 +126,9 @@ BORDER_COLOR = "#30363d"
 # -------------------------------------------------------
 
 STATUS_READY = "READY"
-
 STATUS_RUNNING = "SCANNING..."
-
 STATUS_FINISHED = "COMPLETED"
-
 STATUS_FAILED = "FAILED"
-
 STATUS_IDLE = "IDLE"
 
 # -------------------------------------------------------
@@ -151,11 +136,8 @@ STATUS_IDLE = "IDLE"
 # -------------------------------------------------------
 
 LOW = "LOW"
-
 MEDIUM = "MEDIUM"
-
 HIGH = "HIGH"
-
 CRITICAL = "CRITICAL"
 
 # -------------------------------------------------------
@@ -200,9 +182,6 @@ HTTP_METHODS = [
 # -------------------------------------------------------
 
 WINDOW_WIDTH = 1600
-
 WINDOW_HEIGHT = 950
-
 MIN_WIDTH = 1280
-
 MIN_HEIGHT = 720
