@@ -9,3 +9,10 @@ __license__ = "MIT"
 __status__ = "Production"
 
 VERSION = __version__
+
+# Additional variables required by GUI / TitleBar
+APP_NAME = __title__
+APP_VERSION = __version__
+APP_AUTHOR = __author__
+
+WINDOW_TITLE = f"{__title__} - Professional Website Intelligence Platform"
