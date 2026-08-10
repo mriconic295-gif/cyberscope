@@ -7,9 +7,8 @@ Author : Krunal Paliwal
 
 from pathlib import Path
 
-from PySide6.QtGui import QColor
-from PySide6.QtGui import QPalette
-from PySide6.QtWidgets import QApplication
+from PyQt5.QtGui import QColor, QPalette
+from PyQt5.QtWidgets import QApplication
 
 
 class DarkTheme:
