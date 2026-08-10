@@ -6,19 +6,19 @@ Author : Krunal Paliwal
 =========================================================
 """
 
-from PySide6.QtCore import (
+from PyQt5.QtCore import (
     QEasingCurve,
     QPoint,
     QPropertyAnimation,
     QParallelAnimationGroup,
 )
 
-from PySide6.QtWidgets import (
+from PyQt5.QtWidgets import (
     QGraphicsOpacityEffect,
     QGraphicsDropShadowEffect,
 )
 
-from PySide6.QtGui import QColor
+from PyQt5.QtGui import QColor
 
 
 # ==========================================================
@@ -194,7 +194,7 @@ def button_press(button):
 
 def apply_glow(widget):
 
-    shadow = QGraphicsDropShadowEffect()
+    shadow = QGraphicsDropShadowEffect(widget)
 
     shadow.setBlurRadius(35)
 
@@ -213,7 +213,7 @@ def apply_glow(widget):
 
 def apply_shadow(widget):
 
-    shadow = QGraphicsDropShadowEffect()
+    shadow = QGraphicsDropShadowEffect(widget)
 
     shadow.setBlurRadius(18)
 
@@ -236,7 +236,7 @@ def animate_card(widget):
 
     slide = slide_from_bottom(widget, 300)
 
-    group = QParallelAnimationGroup()
+    group = QParallelAnimationGroup(widget)
 
     group.addAnimation(fade)
 
@@ -259,7 +259,7 @@ def animate_window(widget):
 
     slide = slide_from_left(widget, 500)
 
-    group = QParallelAnimationGroup()
+    group = QParallelAnimationGroup(widget)
 
     group.addAnimation(fade)
 
