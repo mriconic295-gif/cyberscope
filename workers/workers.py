@@ -9,10 +9,7 @@ from __future__ import annotations
 
 import traceback
 
-from PyQt5.QtCore import QObject
-from PyQt5.QtCore import QRunnable
-from PyQt5.QtCore import Signal
-from PyQt5.QtCore import Slot
+from PyQt5.QtCore import QObject, QRunnable, pyqtSignal as Signal, pyqtSlot as Slot
 
 from modules.scanner import ScannerEngine
 
@@ -105,7 +102,9 @@ class ScanWorker(BaseWorker):
                 traceback.format_exc()
 
             )
-          # ==========================================================
+
+
+# ==========================================================
 # Screenshot Worker
 # ==========================================================
 
@@ -230,7 +229,9 @@ class WorkerManager:
     def start_report(self, worker):
 
         self.thread_pool.start(worker)
-      # ==========================================================
+
+
+# ==========================================================
 # WORKER CONTROLLER
 # ==========================================================
 
