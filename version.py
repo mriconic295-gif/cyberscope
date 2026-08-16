@@ -17,3 +17,5 @@ APP_AUTHOR = __author__
 
 WINDOW_TITLE = f"{__title__} - Professional Website Intelligence Platform"
 SPLASH_TITLE = f"{__title__}"
+SPLASH_AUTHOR = __author__
+SPLASH_VERSION = __version__
