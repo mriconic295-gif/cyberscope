@@ -7,7 +7,7 @@ Author : Krunal Paliwal
 =========================================================
 """
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (
     QWidget,
@@ -22,6 +22,42 @@ from PyQt5.QtWidgets import (
 )
 
 from themes.animations import apply_shadow
+
+# Dynamic engine import fallback
+try:
+    from recon_engine import ReconnaissanceEngine
+except ImportError:
+    try:
+        from core.engine import ReconnaissanceEngine
+    except ImportError:
+        ReconnaissanceEngine = None
+
+
+# ==========================================================
+# Background Worker Thread (UI Freeze Fix)
+# ==========================================================
+
+class ScanWorker(QThread):
+    progress_signal = pyqtSignal(str)
+    finished_signal = pyqtSignal(dict)
+    error_signal = pyqtSignal(str)
+
+    def __init__(self, target):
+        super().__init__()
+        self.target = target
+
+    def run(self):
+        try:
+            self.progress_signal.emit(f"[+] Initializing reconnaissance for: {self.target}")
+            if ReconnaissanceEngine is None:
+                raise ImportError("ReconnaissanceEngine module not found. Check your python imports.")
+            
+            engine = ReconnaissanceEngine()
+            self.progress_signal.emit("[+] Running active scanning tasks...")
+            result = engine.run(self.target)
+            self.finished_signal.emit(result)
+        except Exception as e:
+            self.error_signal.emit(str(e))
 
 
 # ==========================================================
@@ -58,6 +94,7 @@ class Dashboard(QWidget):
 
     def __init__(self):
         super().__init__()
+        self.worker = None
         self.build_ui()
 
     # ======================================================
@@ -200,6 +237,37 @@ class Dashboard(QWidget):
         root.addStretch()
 
     # ======================================================
+    # ASYNCHRONOUS SCAN LAUNCHER (NEW)
+    # ======================================================
+
+    def start_async_scan(self, target):
+        """ Background Thread me Scanning start karega """
+        self.scan_started(target)
+        
+        self.worker = ScanWorker(target)
+        self.worker.progress_signal.connect(self.log)
+        self.worker.finished_signal.connect(self.handle_scan_results)
+        self.worker.error_signal.connect(self.scan_error)
+        self.worker.start()
+
+    def handle_scan_results(self, result):
+        """ Scan completed hone par saare UI components update honge """
+        data = result.get("data", {})
+        
+        if "ip" in data and isinstance(data["ip"], dict):
+            self.set_real_ip(data["ip"].get("ip", "--"))
+        if "response" in data:
+            self.set_response_time(data["response"])
+        if "dns" in data:
+            self.set_dns(data["dns"])
+        if "whois" in data:
+            self.set_whois(data["whois"])
+        if "performance" in data:
+            self.set_performance(data["performance"])
+
+        self.scan_completed()
+
+    # ======================================================
     # LOG TERMINAL
     # ======================================================
 
@@ -283,10 +351,10 @@ class Dashboard(QWidget):
         self.clear()
         self.targetCard.setValue(target)
         self.log(f"[+] Target : {target}")
-        self.log("[+] Starting reconnaissance...")
+        self.log("[+] Starting background reconnaissance...")
 
     def scan_completed(self):
-        self.log("[+] Scan Completed.")
+        self.log("[+] Scan Completed Successfully.")
 
     def scan_error(self, error):
         self.log(f"[ERROR] {error}")
