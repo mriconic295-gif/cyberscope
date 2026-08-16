@@ -334,6 +334,16 @@ class MainWindow(QMainWindow):
             f"Opening : {page}"
         )
 
+        if isinstance(page, int):
+            if 0 <= page < self.stack.count():
+                self.stack.setCurrentIndex(page)
+        elif isinstance(page, str):
+            for i in range(self.stack.count()):
+                widget = self.stack.widget(i)
+                if hasattr(widget, 'objectName') and widget.objectName().lower() == page.lower():
+                    self.stack.setCurrentIndex(i)
+                    break
+
     # ==================================================
     # Start Scan
     # ==================================================
@@ -353,12 +363,16 @@ class MainWindow(QMainWindow):
             return
 
         self.status.showMessage(
-            f"Scanning {target}"
+            f"Scanning {target}..."
         )
 
         self.scanRequested.emit(
             target
         )
+
+        # Direct Background Thread Execution
+        if hasattr(self, 'dashboard'):
+            self.dashboard.start_async_scan(target)
 
     # ==================================================
     # Import Domains
