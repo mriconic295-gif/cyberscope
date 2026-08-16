@@ -106,6 +106,16 @@ class Logger:
 logger = Logger()
 
 
+def setup_logger(name="CyberScope", level=logging.INFO):
+    """
+    Main.py dwara import kiye jaane wale setup_logger function ko support karne ke liye.
+    """
+    log_inst = Logger()
+    if level:
+        log_inst.logger.setLevel(level)
+    return log_inst.logger
+
+
 if __name__ == "__main__":
 
     logger.info("CyberScope Logger Started")
