@@ -10,9 +10,10 @@ __status__ = "Production"
 
 VERSION = __version__
 
-# Additional variables required by GUI / TitleBar
+# Additional variables required by GUI / TitleBar / SplashScreen
 APP_NAME = __title__
 APP_VERSION = __version__
 APP_AUTHOR = __author__
 
 WINDOW_TITLE = f"{__title__} - Professional Website Intelligence Platform"
+SPLASH_TITLE = f"{__title__}"
