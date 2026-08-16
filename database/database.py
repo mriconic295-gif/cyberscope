@@ -218,9 +218,7 @@ database = Database()
 
 if __name__ == "__main__":
 
-    from database.database import Database
-
-db = Database()
+    db = Database()
 
     print("CyberScope Database Ready")
 
