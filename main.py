@@ -18,7 +18,7 @@ import signal
 
 from pathlib import Path
 
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer, QThreadPool
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QApplication,
@@ -96,7 +96,6 @@ def exception_handler(exc_type, exc_value, exc_traceback):
     )
     logger.critical(message)
     
-    # Ensure application instance exists before displaying dialog
     if QApplication.instance():
         QMessageBox.critical(
             None,
@@ -158,21 +157,28 @@ def initialize_database():
         return False
 
 # ============================================================
-# WORKER INITIALIZATION
+# WORKER INITIALIZATION (FIXED POSITIONAL ARGUMENT BUG)
 # ============================================================
 
 worker_manager = None
+thread_pool = None
 
 def initialize_workers():
-    global worker_manager
+    global worker_manager, thread_pool
     try:
         logger.info("Initializing Workers...")
-        worker_manager = WorkerManager()
+        
+        # Safe Thread Pool Setup
+        thread_pool = QThreadPool.globalInstance()
+        thread_pool.setMaxThreadCount(10)
+        
+        # Passing Thread Pool to WorkerManager
+        worker_manager = WorkerManager(thread_pool)
 
         if hasattr(worker_manager, "start"):
             worker_manager.start()
 
-        logger.info("Workers Ready")
+        logger.info("Workers Ready with ThreadPool")
         return True
 
     except Exception as e:
@@ -207,7 +213,6 @@ def load_stylesheet(app):
 # ============================================================
 
 def create_application():
-    # Set DPI scaling attributes before creating QApplication
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
@@ -227,10 +232,14 @@ def create_application():
 # ============================================================
 
 def show_splash():
-    splash = SplashScreen()
-    splash.show()
-    QApplication.processEvents()
-    return splash
+    try:
+        splash = SplashScreen()
+        splash.show()
+        QApplication.processEvents()
+        return splash
+    except Exception as e:
+        logger.warning(f"Splash screen error ignored: {e}")
+        return None
 
 # ============================================================
 # MAIN WINDOW
@@ -254,7 +263,7 @@ def create_main_window():
 def startup_sequence(splash):
     logger.info("Starting CyberScope Sequence...")
 
-    if hasattr(splash, "set_status"):
+    if splash and hasattr(splash, "set_status"):
         splash.set_status("Checking Assets...")
     QApplication.processEvents()
 
@@ -262,10 +271,10 @@ def startup_sequence(splash):
         logger.warning("Some assets are missing.")
 
     # --------------------------------------------------------
-    if hasattr(splash, "set_progress"):
+    if splash and hasattr(splash, "set_progress"):
         splash.set_progress(15)
 
-    if hasattr(splash, "set_status"):
+    if splash and hasattr(splash, "set_status"):
         splash.set_status("Initializing Database...")
 
     QApplication.processEvents()
@@ -279,30 +288,30 @@ def startup_sequence(splash):
         return None
 
     # --------------------------------------------------------
-    if hasattr(splash, "set_progress"):
+    if splash and hasattr(splash, "set_progress"):
         splash.set_progress(35)
 
-    if hasattr(splash, "set_status"):
+    if splash and hasattr(splash, "set_status"):
         splash.set_status("Starting Workers...")
 
     QApplication.processEvents()
     initialize_workers()
 
     # --------------------------------------------------------
-    if hasattr(splash, "set_progress"):
+    if splash and hasattr(splash, "set_progress"):
         splash.set_progress(55)
 
-    if hasattr(splash, "set_status"):
+    if splash and hasattr(splash, "set_status"):
         splash.set_status("Loading Interface...")
 
     QApplication.processEvents()
     window = create_main_window()
 
     # --------------------------------------------------------
-    if hasattr(splash, "set_progress"):
+    if splash and hasattr(splash, "set_progress"):
         splash.set_progress(80)
 
-    if hasattr(splash, "set_status"):
+    if splash and hasattr(splash, "set_status"):
         splash.set_status("Preparing Dashboard...")
 
     QApplication.processEvents()
@@ -314,10 +323,10 @@ def startup_sequence(splash):
             logger.exception("MainWindow.initialize() failed")
 
     # --------------------------------------------------------
-    if hasattr(splash, "set_progress"):
+    if splash and hasattr(splash, "set_progress"):
         splash.set_progress(100)
 
-    if hasattr(splash, "set_status"):
+    if splash and hasattr(splash, "set_status"):
         splash.set_status("Ready")
 
     QApplication.processEvents()
@@ -331,7 +340,11 @@ def cleanup():
     logger.info("Cleaning Resources...")
 
     try:
-        global worker_manager
+        global worker_manager, thread_pool
+        if thread_pool:
+            thread_pool.clear()
+            thread_pool.waitForDone(1000)
+            
         if worker_manager:
             if hasattr(worker_manager, "stop"):
                 worker_manager.stop()
@@ -368,7 +381,6 @@ try:
 except Exception:
     pass
 
-# Safe Exit Timer for Python/Qt signal processing
 exit_timer = QTimer()
 exit_timer.setInterval(500)
 exit_timer.timeout.connect(lambda: None)
@@ -381,7 +393,7 @@ def run():
     logger.info("Launching Application")
 
     app = create_application()
-    exit_timer.start()  # Allow PyQt event loop to process SIGINT signals
+    exit_timer.start()
 
     splash = show_splash()
     window = None
@@ -398,17 +410,15 @@ def run():
             )
             return 1
 
-        # -----------------------------
-        if hasattr(splash, "finish"):
-            splash.finish(window)
-        else:
-            splash.close()
+        if splash:
+            if hasattr(splash, "finish"):
+                splash.finish(window)
+            else:
+                splash.close()
 
-        # -----------------------------
         window.show()
         logger.info("Main Window Displayed")
 
-        # PyQt5 execution loop
         exit_code = app.exec_()
 
         cleanup()
