@@ -7,11 +7,19 @@ Author : Krunal Paliwal
 
 from __future__ import annotations
 
+import socket
 import traceback
 
-from PyQt5.QtCore import QObject, QRunnable, pyqtSignal as Signal, pyqtSlot as Slot
+from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal as Signal, pyqtSlot as Slot
 
-from modules.scanner import ScannerEngine
+try:
+    from modules.scanner import ScannerEngine
+except ImportError:
+    ScannerEngine = None
+
+
+# Set global socket timeout (10 Seconds max per network hit)
+socket.setdefaulttimeout(10)
 
 
 # ==========================================================
@@ -19,19 +27,12 @@ from modules.scanner import ScannerEngine
 # ==========================================================
 
 class WorkerSignals(QObject):
-
     started = Signal()
-
     finished = Signal()
-
     error = Signal(str)
-
     progress = Signal(int)
-
     status = Signal(str)
-
     result = Signal(dict)
-
     screenshot = Signal(str)
 
 
@@ -40,13 +41,9 @@ class WorkerSignals(QObject):
 # ==========================================================
 
 class BaseWorker(QRunnable):
-
     def __init__(self):
-
         super().__init__()
-
         self.signals = WorkerSignals()
-
         self.setAutoDelete(True)
 
 
@@ -55,53 +52,40 @@ class BaseWorker(QRunnable):
 # ==========================================================
 
 class ScanWorker(BaseWorker):
-
     def __init__(self, target):
-
         super().__init__()
-
         self.target = target
-
-        self.engine = ScannerEngine()
+        self.engine = ScannerEngine() if ScannerEngine else None
 
     @Slot()
     def run(self):
-
         try:
-
             self.signals.started.emit()
+            self.signals.status.emit("Initializing Scanner...")
+            self.signals.progress.emit(10)
 
-            self.signals.status.emit(
+            if not self.engine:
+                raise ImportError("ScannerEngine is missing or could not be loaded!")
 
-                "Initializing Scanner..."
+            self.signals.status.emit(f"Scanning target: {self.target}")
+            self.signals.progress.emit(30)
 
-            )
-
-            self.signals.progress.emit(5)
-
+            # Active Scan Execution with Callbacks
             result = self.engine.scan(
-
                 self.target,
-
                 progress_callback=self.signals.progress,
-
                 status_callback=self.signals.status
-
             )
 
             self.signals.progress.emit(100)
-
-            self.signals.result.emit(result)
-
+            self.signals.status.emit("Scan Completed Successfully!")
+            self.signals.result.emit(result if isinstance(result, dict) else {})
             self.signals.finished.emit()
 
-        except Exception:
-
-            self.signals.error.emit(
-
-                traceback.format_exc()
-
-            )
+        except Exception as e:
+            error_msg = f"Scan Engine Exception: {str(e)}\n{traceback.format_exc()}"
+            self.signals.error.emit(error_msg)
+            self.signals.finished.emit()
 
 
 # ==========================================================
@@ -109,43 +93,27 @@ class ScanWorker(BaseWorker):
 # ==========================================================
 
 class ScreenshotWorker(BaseWorker):
-
     def __init__(self, target):
-
         super().__init__()
-
         self.target = target
 
     @Slot()
     def run(self):
-
         try:
-
             from modules.intelligence import ScreenshotEngine
 
             self.signals.started.emit()
-
-            self.signals.status.emit(
-
-                "Capturing Website Screenshot..."
-
-            )
+            self.signals.status.emit("Capturing Website Screenshot...")
 
             engine = ScreenshotEngine()
-
             image = engine.capture(self.target)
 
             self.signals.screenshot.emit(image)
-
             self.signals.finished.emit()
 
         except Exception:
-
-            self.signals.error.emit(
-
-                traceback.format_exc()
-
-            )
+            self.signals.error.emit(traceback.format_exc())
+            self.signals.finished.emit()
 
 
 # ==========================================================
@@ -153,81 +121,50 @@ class ScreenshotWorker(BaseWorker):
 # ==========================================================
 
 class ReportWorker(BaseWorker):
-
     def __init__(self, data, report_type, output_path):
-
         super().__init__()
-
         self.data = data
-
-        self.report_type = report_type.lower()
-
+        self.report_type = str(report_type).lower()
         self.output_path = output_path
 
     @Slot()
     def run(self):
-
         try:
-
             from reports.report_engine import ReportEngine
 
             self.signals.started.emit()
-
-            self.signals.status.emit(
-
-                "Generating Report..."
-
-            )
+            self.signals.status.emit("Generating Report...")
 
             engine = ReportEngine()
-
             path = engine.export(
-
                 report_type=self.report_type,
-
                 data=self.data,
-
                 output_path=self.output_path
-
             )
 
-            self.signals.result.emit({
-
-                "report": path
-
-            })
-
+            self.signals.result.emit({"report": path})
             self.signals.finished.emit()
 
         except Exception:
-
-            self.signals.error.emit(
-
-                traceback.format_exc()
-
-            )
+            self.signals.error.emit(traceback.format_exc())
+            self.signals.finished.emit()
 
 
 # ==========================================================
-# Worker Manager
+# Worker Manager (Fixed Optional ThreadPool)
 # ==========================================================
 
 class WorkerManager:
-
-    def __init__(self, thread_pool):
-
-        self.thread_pool = thread_pool
+    def __init__(self, thread_pool=None):
+        self.thread_pool = thread_pool or QThreadPool.globalInstance()
 
     def start_scan(self, worker):
-
         self.thread_pool.start(worker)
 
     def start_screenshot(self, worker):
-
         self.thread_pool.start(worker)
 
     def start_report(self, worker):
-
         self.thread_pool.start(worker)
 
 
@@ -236,58 +173,24 @@ class WorkerManager:
 # ==========================================================
 
 class WorkerController:
-
-    """
-    Central Worker Manager
-
-    Responsible for:
-
-    • Scan Worker
-    • Screenshot Worker
-    • Report Worker
-
-    """
-
-    def __init__(self, thread_pool):
-
-        self.pool = thread_pool
-
+    def __init__(self, thread_pool=None):
+        self.pool = thread_pool or QThreadPool.globalInstance()
         self.active_workers = []
 
-    # ------------------------------------------------------
-
     def submit(self, worker):
-
         self.active_workers.append(worker)
-
-        worker.signals.finished.connect(
-
-            lambda: self.cleanup(worker)
-
-        )
-
+        worker.signals.finished.connect(lambda: self.cleanup(worker))
         self.pool.start(worker)
-
         return worker
 
-    # ------------------------------------------------------
-
     def cleanup(self, worker):
-
         if worker in self.active_workers:
-
             self.active_workers.remove(worker)
 
-    # ------------------------------------------------------
-
     def running(self):
-
         return len(self.active_workers)
 
-    # ------------------------------------------------------
-
     def clear(self):
-
         self.active_workers.clear()
 
 
@@ -296,69 +199,18 @@ class WorkerController:
 # ==========================================================
 
 class WorkerFactory:
-
     @staticmethod
     def scan(target):
-
         return ScanWorker(target)
 
     @staticmethod
     def screenshot(target):
-
         return ScreenshotWorker(target)
 
     @staticmethod
-    def report(
+    def report(data, report_type, output_path):
+        return ReportWorker(data, report_type, output_path)
 
-        data,
-
-        report_type,
-
-        output_path
-
-    ):
-
-        return ReportWorker(
-
-            data,
-
-            report_type,
-
-            output_path
-
-        )
-
-
-# ==========================================================
-# VERSION
-# ==========================================================
 
 WORKER_NAME = "CyberScope Workers"
-
 WORKER_VERSION = "2.0"
-
-
-# ==========================================================
-# TEST
-# ==========================================================
-
-def self_test():
-
-    print("="*50)
-
-    print(WORKER_NAME)
-
-    print(WORKER_VERSION)
-
-    print("="*50)
-
-    print("Workers Ready")
-
-
-# ==========================================================
-# MAIN
-# ==========================================================
-
-if __name__ == "__main__":
-
-    self_test()
