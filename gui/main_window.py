@@ -69,9 +69,10 @@ class MainWindow(QMainWindow):
         # Optimization for Low-End PC Displays
         self.setMinimumSize(1024, 600)
 
-        self.setWindowIcon(
-            QIcon(str(APP_ICON))
-        )
+        if Path(APP_ICON).exists():
+            self.setWindowIcon(
+                QIcon(str(APP_ICON))
+            )
 
         # Frameless Window
         self.setWindowFlags(
@@ -94,6 +95,10 @@ class MainWindow(QMainWindow):
         app_inst = self.application_instance()
         if app_inst:
             theme.apply(app_inst)
+
+        # Workers placeholder
+        self.worker_manager = None
+        self.thread_pool = None
 
         # UI
         self.build_ui()
@@ -371,7 +376,7 @@ class MainWindow(QMainWindow):
         )
 
         # Direct Background Thread Execution
-        if hasattr(self, 'dashboard'):
+        if hasattr(self, 'dashboard') and hasattr(self.dashboard, 'start_async_scan'):
             self.dashboard.start_async_scan(target)
 
     # ==================================================
@@ -514,7 +519,8 @@ class MainWindow(QMainWindow):
     def refresh_dashboard(self):
 
         try:
-            self.dashboard.refresh()
+            if hasattr(self.dashboard, 'refresh'):
+                self.dashboard.refresh()
         except Exception:
             pass
 
@@ -567,9 +573,10 @@ class MainWindow(QMainWindow):
     def show_ai_summary(self, summary):
 
         try:
-            self.dashboard.ai_summary.setPlainText(
-                summary
-            )
+            if hasattr(self.dashboard, 'ai_summary'):
+                self.dashboard.ai_summary.setPlainText(
+                    summary
+                )
         except Exception:
             pass
 
@@ -580,9 +587,10 @@ class MainWindow(QMainWindow):
     def update_risk_score(self, score):
 
         try:
-            self.dashboard.update_score(
-                score
-            )
+            if hasattr(self.dashboard, 'update_score'):
+                self.dashboard.update_score(
+                    score
+                )
         except Exception:
             pass
 
@@ -601,10 +609,15 @@ class MainWindow(QMainWindow):
     def start_worker(self, worker):
 
         try:
-            worker.finished.connect(self.scan_finished)
-            worker.error.connect(self.scan_error)
-            worker.progress.connect(self.update_progress)
-            worker.start()
+            if hasattr(worker, 'finished'):
+                worker.finished.connect(self.scan_finished)
+            if hasattr(worker, 'error'):
+                worker.error.connect(self.scan_error)
+            if hasattr(worker, 'progress'):
+                worker.progress.connect(self.update_progress)
+            
+            if hasattr(worker, 'start'):
+                worker.start()
 
         except Exception as error:
             self.scan_error(str(error))
@@ -674,10 +687,10 @@ class MainWindow(QMainWindow):
             self,
             "CyberScope",
             f"""
-<b>{APP_NAME}</b>
-Version : {APP_VERSION}
-Author : Krunal Paliwal
-Professional Website Reconnaissance Toolkit
+<b>{APP_NAME}</b><br>
+Version : {APP_VERSION}<br>
+Author : Krunal Paliwal<br><br>
+Professional Website Reconnaissance Toolkit<br>
 Powered by Python + Qt
             """
         )
