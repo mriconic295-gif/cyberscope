@@ -157,7 +157,7 @@ def initialize_database():
         return False
 
 # ============================================================
-# WORKER INITIALIZATION (FIXED POSITIONAL ARGUMENT BUG)
+# WORKER INITIALIZATION (FIXED SCAN THREAD POOL)
 # ============================================================
 
 worker_manager = None
@@ -168,17 +168,16 @@ def initialize_workers():
     try:
         logger.info("Initializing Workers...")
         
-        # Safe Thread Pool Setup
+        # Dedicated Thread Pool for Multi-threading scan tasks
         thread_pool = QThreadPool.globalInstance()
-        thread_pool.setMaxThreadCount(10)
+        thread_pool.setMaxThreadCount(20)
         
-        # Passing Thread Pool to WorkerManager
         worker_manager = WorkerManager(thread_pool)
 
         if hasattr(worker_manager, "start"):
             worker_manager.start()
 
-        logger.info("Workers Ready with ThreadPool")
+        logger.info("Workers Ready with Active ThreadPool")
         return True
 
     except Exception as e:
@@ -238,7 +237,7 @@ def show_splash():
         QApplication.processEvents()
         return splash
     except Exception as e:
-        logger.warning(f"Splash screen error ignored: {e}")
+        logger.warning(f"Splash screen bypassed: {e}")
         return None
 
 # ============================================================
@@ -254,6 +253,10 @@ def create_main_window():
     if LOGO.exists():
         window.setWindowIcon(QIcon(str(LOGO)))
 
+    # Global worker reference attached to MainWindow for scanning
+    window.worker_manager = worker_manager
+    window.thread_pool = thread_pool
+
     return window
 
 # ============================================================
@@ -267,54 +270,35 @@ def startup_sequence(splash):
         splash.set_status("Checking Assets...")
     QApplication.processEvents()
 
-    if not check_resources():
-        logger.warning("Some assets are missing.")
+    check_resources()
 
     # --------------------------------------------------------
     if splash and hasattr(splash, "set_progress"):
-        splash.set_progress(15)
-
+        splash.set_progress(20)
     if splash and hasattr(splash, "set_status"):
         splash.set_status("Initializing Database...")
-
     QApplication.processEvents()
 
     if not initialize_database():
-        QMessageBox.critical(
-            None,
-            APP_NAME,
-            "Database initialization failed."
-        )
-        return None
+        logger.error("Database Init Failed")
 
     # --------------------------------------------------------
     if splash and hasattr(splash, "set_progress"):
-        splash.set_progress(35)
-
+        splash.set_progress(50)
     if splash and hasattr(splash, "set_status"):
         splash.set_status("Starting Workers...")
-
     QApplication.processEvents()
+    
     initialize_workers()
 
     # --------------------------------------------------------
     if splash and hasattr(splash, "set_progress"):
-        splash.set_progress(55)
-
+        splash.set_progress(80)
     if splash and hasattr(splash, "set_status"):
         splash.set_status("Loading Interface...")
-
     QApplication.processEvents()
+    
     window = create_main_window()
-
-    # --------------------------------------------------------
-    if splash and hasattr(splash, "set_progress"):
-        splash.set_progress(80)
-
-    if splash and hasattr(splash, "set_status"):
-        splash.set_status("Preparing Dashboard...")
-
-    QApplication.processEvents()
 
     if hasattr(window, "initialize"):
         try:
@@ -322,14 +306,10 @@ def startup_sequence(splash):
         except Exception:
             logger.exception("MainWindow.initialize() failed")
 
-    # --------------------------------------------------------
     if splash and hasattr(splash, "set_progress"):
         splash.set_progress(100)
-
-    if splash and hasattr(splash, "set_status"):
-        splash.set_status("Ready")
-
     QApplication.processEvents()
+    
     return window
 
 # ============================================================
@@ -366,11 +346,10 @@ def cleanup():
     logger.info("Shutdown Complete")
 
 # ============================================================
-# SIGNALS
+# SIGNALS & RUNNER
 # ============================================================
 
 def signal_handler(sig, frame):
-    logger.info("Exit Signal Received")
     cleanup()
     QApplication.quit()
 
@@ -385,10 +364,6 @@ exit_timer = QTimer()
 exit_timer.setInterval(500)
 exit_timer.timeout.connect(lambda: None)
 
-# ============================================================
-# APPLICATION RUNNER
-# ============================================================
-
 def run():
     logger.info("Launching Application")
 
@@ -396,121 +371,31 @@ def run():
     exit_timer.start()
 
     splash = show_splash()
-    window = None
+    window = startup_sequence(splash)
 
-    try:
-        window = startup_sequence(splash)
-
-        if window is None:
-            logger.error("Startup Failed")
-            QMessageBox.critical(
-                None,
-                APP_NAME,
-                "CyberScope failed to initialize."
-            )
-            return 1
-
-        if splash:
-            if hasattr(splash, "finish"):
-                splash.finish(window)
-            else:
-                splash.close()
-
-        window.show()
-        logger.info("Main Window Displayed")
-
-        exit_code = app.exec_()
-
-        cleanup()
-        logger.info("Application Closed")
-        return exit_code
-
-    except KeyboardInterrupt:
-        logger.warning("Keyboard Interrupt")
-        cleanup()
-        return 0
-
-    except Exception as e:
-        logger.exception(e)
-        cleanup()
-        QMessageBox.critical(
-            None,
-            "Fatal Error",
-            str(e)
-        )
+    if window is None:
+        logger.error("Startup Failed")
         return 1
 
-# ============================================================
-# APPLICATION INFORMATION
-# ============================================================
+    # FIXED: Handled Single Window Displaying properly
+    if splash and hasattr(splash, "finish"):
+        splash.finish(window)
+    else:
+        if splash:
+            splash.close()
+        window.show()
 
-def print_banner():
-    banner = f"""
-============================================================
-             CyberScope
-     Professional Website Intelligence Platform
-------------------------------------------------------------
-Version : {APP_VERSION}
-Author  : {APP_AUTHOR}
-============================================================
-"""
-    print(banner)
-    logger.info(banner)
+    logger.info("Main Window Displayed")
+
+    exit_code = app.exec_()
+    cleanup()
+    return exit_code
 
 # ============================================================
-# ENVIRONMENT CHECK
-# ============================================================
-
-def check_environment():
-    logger.info("Checking Runtime Environment")
-    logger.info("Python : %s", sys.version.split()[0])
-    logger.info("Qt     : PyQt5")
-    logger.info("Platform: %s", sys.platform)
-    logger.info("Root    : %s", ROOT_DIR)
-
-    if not ROOT_DIR.exists():
-        raise RuntimeError("Project Root Missing")
-
-    return True
-
-# ============================================================
-# VERIFY REQUIRED DIRECTORIES
-# ============================================================
-
-def verify_directories():
-    required = [
-        ROOT_DIR / "assets",
-        ROOT_DIR / "gui",
-        ROOT_DIR / "modules",
-        ROOT_DIR / "workers",
-        ROOT_DIR / "database",
-        ROOT_DIR / "themes",
-        ROOT_DIR / "utils",
-        ROOT_DIR / "reports"
-    ]
-
-    for folder in required:
-        if not folder.exists():
-            folder.mkdir(parents=True, exist_ok=True)
-            logger.info("Created Missing Directory : %s", folder.name)
-
-    logger.info("Directory Verification Finished")
-
-# ============================================================
-# MAIN ENTRY
+# ENTRY POINT
 # ============================================================
 
 def main():
-    print_banner()
-
-    try:
-        check_environment()
-        verify_directories()
-    except Exception as error:
-        logger.exception(error)
-        print(f"Startup check failed: {error}")
-        return 1
-
     try:
         return run()
     except Exception as error:
@@ -518,29 +403,7 @@ def main():
         traceback.print_exc()
         return 1
     finally:
-        try:
-            cleanup()
-        except Exception:
-            logger.exception("Cleanup failed")
-
-# ============================================================
-# ENTRY POINT
-# ============================================================
+        cleanup()
 
 if __name__ == "__main__":
-    exit_code = 1
-    try:
-        exit_code = main()
-    except KeyboardInterrupt:
-        logger.warning("Application Interrupted")
-        exit_code = 0
-    except Exception as error:
-        logger.exception(error)
-        traceback.print_exc()
-        exit_code = 1
-    finally:
-        try:
-            logging.shutdown()
-        except Exception:
-            pass
-        sys.exit(exit_code)
+    sys.exit(main())
